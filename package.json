@@ -1,0 +1,14 @@
+{
+  "name": "digital-slam-book",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env server.js",
+    "start": "node --env-file-if-exists=.env server.js",
+    "export": "node --env-file-if-exists=.env export.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "mongoose": "^9.10.4"
+  }
+}

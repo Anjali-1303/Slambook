@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Slam Book Owner Dashboard</title>
+    <style>
+        :root {
+            --primary: #7048d8;
+            --primary-hover: #5d38be;
+            --bg: #f8f5ff;
+            --card-bg: #ffffff;
+            --text: #211b2c;
+            --muted: #756c81;
+            --border: #e6dfef;
+            --danger: #e53e3e;
+            --danger-bg: #fff5f5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            color: var(--text);
+            line-height: 1.5;
+            padding: 24px 16px;
+        }
+
+        .wrap {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-family: Georgia, serif;
+            font-size: 28px;
+            color: var(--text);
+        }
+
+        .header .actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #7048d8, #c34f92);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: #f1ecfc;
+        }
+
+        .btn-danger {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: 1px solid #feb2b2;
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 8px;
+        }
+
+        .btn-danger:hover {
+            background: #fed7d7;
+        }
+
+        /* Login Card */
+        .auth-card {
+            max-width: 420px;
+            margin: 60px auto;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 36px 28px;
+            box-shadow: 0 16px 40px rgba(94, 58, 160, 0.1);
+            text-align: center;
+        }
+
+        .auth-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .auth-card h2 {
+            font-family: Georgia, serif;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .auth-card p {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #dcd4e8;
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+            background: #fcfbfe;
+            transition: border-color 0.2s ease;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(112, 72, 216, 0.12);
+        }
+
+        .error-msg {
+            color: var(--danger);
+            background: var(--danger-bg);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        /* Dashboard View */
+        #dashboardView {
+            display: none;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .search-box {
+            max-width: 300px;
+            width: 100%;
+        }
+
+        .entry-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(94, 58, 160, 0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f2ecf9;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+        }
+
+        .selfie-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(112, 72, 216, 0.2);
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .selfie-avatar:hover {
+            transform: scale(1.08);
+        }
+
+        .verified-badge {
+            display: inline-block;
+            background: #e6fffa;
+            color: #234e52;
+            border: 1px solid #b2f5ea;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 99px;
+            margin-top: 4px;
+        }
+
+        .entry-user {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .entry-meta {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .section-heading {
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--primary);
+            margin: 14px 0 6px 0;
+        }
+
+        .paragraph-box {
+            font-size: 15px;
+            color: #332b40;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            background: #faf8ff;
+            padding: 14px 16px;
+            border-radius: 12px;
+        }
+
+        .secret-box {
+            background: #fff4fa;
+            border: 1px dashed #e891bd;
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 10px;
+        }
+
+        .secret-badge {
+            display: inline-block;
+            background: #fbe3ef;
+            color: #b82d75;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .q-item {
+            margin-top: 10px;
+            font-size: 14px;
+            background: #fdfcff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .q-item b {
+            color: var(--primary);
+            display: block;
+            margin-bottom: 3px;
+            font-size: 13px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            color: var(--muted);
+        }
+
+        /* Modal Preview */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 10, 25, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .modal-content {
+            max-width: 480px;
+            width: 100%;
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-img {
+            width: 100%;
+            max-height: 380px;
+            object-fit: cover;
+            border-radius: 16px;
+            border: 3px solid var(--primary);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <!-- AUTH SECTION -->
+        <div id="authView">
+            <div class="auth-card">
+                <div class="auth-icon">🔐</div>
+                <h2>Owner Authentication</h2>
+                <p>Please enter your passcode to view private slam book messages.</p>
+                
+                <div id="loginError" class="error-msg">Incorrect password. Please try again.</div>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="adminPass">Admin Password</label>
+                        <input type="password" id="adminPass" class="input-field" placeholder="Enter password" required autofocus>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%;">Unlock Messages ✨</button>
+                </form>
+                <div style="margin-top: 20px;">
+                    <a href="/" class="btn btn-outline" style="font-size:12px; padding:6px 12px;">← Back to Slam Book</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD SECTION -->
+        <div id="dashboardView">
+            <header class="header">
+                <div>
+                    <h1>💌 Slam Book Dashboard</h1>
+                    <p style="color:var(--muted); font-size:14px;">Private messages & verified selfies left for Anjali V</p>
+                </div>
+                <div class="actions">
+                    <a href="/" class="btn btn-outline">← Public Page</a>
+                    <button id="logoutBtn" class="btn btn-outline">Logout 🔒</button>
+                </div>
+            </header>
+
+            <div class="stats-bar">
+                <div style="font-weight:700; font-size:15px;" id="totalCount">Total Entries: 0</div>
+                <input type="text" id="searchInput" class="input-field search-box" placeholder="🔍 Search entries by name...">
+            </div>
+
+            <div id="entriesList">Loading entries...</div>
+        </div>
+    </div>
+
+    <!-- Selfie Zoom Modal -->
+    <div class="modal-overlay" id="selfieModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeSelfieModal()">&times;</button>
+            <h3 id="modalTitle" style="font-family:Georgia, serif; margin-bottom:12px; color:var(--primary);">Identity Verification Selfie</h3>
+            <img id="modalImg" class="modal-img" alt="Full Selfie">
+            <p id="modalSub" style="margin-top:10px; font-size:13px; color:var(--muted);"></p>
+        </div>
+    </div>
+
+    <script>
+        const AUTH_KEY = 'slambook_admin_token';
+        let allEntries = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedToken = sessionStorage.getItem(AUTH_KEY);
+            if (savedToken) {
+                fetchEntries(savedToken);
+            }
+
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const pass = document.getElementById('adminPass').value;
+                const errBox = document.getElementById('loginError');
+                errBox.style.display = 'none';
+
+                try {
+                    const res = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ password: pass })
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.ok) {
+                        sessionStorage.setItem(AUTH_KEY, pass);
+                        fetchEntries(pass);
+                    } else {
+                        errBox.textContent = data.error || 'Incorrect password';
+                        errBox.style.display = 'block';
+                    }
+                } catch (err) {
+                    errBox.textContent = 'Network error. Please try again.';
+                    errBox.style.display = 'block';
+                }
+            });
+
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                sessionStorage.removeItem(AUTH_KEY);
+                document.getElementById('dashboardView').style.display = 'none';
+                document.getElementById('authView').style.display = 'block';
+                document.getElementById('adminPass').value = '';
+            });
+
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                const filtered = allEntries.filter(item => 
+                    item.name.toLowerCase().includes(query) ||
+                    item.phone.toLowerCase().includes(query) ||
+                    item.paragraph.toLowerCase().includes(query) ||
+                    item.secret.toLowerCase().includes(query)
+                );
+                renderEntries(filtered);
+            });
+        });
+
+        async function fetchEntries(token) {
+            try {
+                const res = await fetch('/api/entries', {
+                    headers: { 'X-Admin-Password': token }
+                });
+
+                if (res.status === 401) {
+                    sessionStorage.removeItem(AUTH_KEY);
+                    document.getElementById('dashboardView').style.display = 'none';
+                    document.getElementById('authView').style.display = 'block';
+                    document.getElementById('loginError').textContent = 'Session expired or invalid password.';
+                    document.getElementById('loginError').style.display = 'block';
+                    return;
+                }
+
+                allEntries = await res.json();
+                document.getElementById('authView').style.display = 'none';
+                document.getElementById('dashboardView').style.display = 'block';
+                renderEntries(allEntries);
+            } catch (err) {
+                alert('Error loading entries: ' + err.message);
+            }
+        }
+
+        function renderEntries(entries) {
+            const listEl = document.getElementById('entriesList');
+            document.getElementById('totalCount').textContent = `Total Entries: ${entries.length}`;
+
+            if (!entries || entries.length === 0) {
+                listEl.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size:40px;">📭</div>
+                        <p>No autographs submitted yet!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = entries.map(x => `
+                <article class="entry-card" id="entry-${x.id}">
+                    <div class="entry-header">
+                        <div style="display:flex; align-items:center; gap:16px;">
+                            ${x.selfie ? `
+                                <img src="${x.selfie}" alt="Selfie of ${esc(x.name)}" class="selfie-avatar" onclick="openSelfieModal('${x.id}')" title="Click to view full selfie photo">
+                            ` : `<div style="width:60px; height:60px; border-radius:50%; background:#eedffc; display:flex; align-items:center; justify-content:center; font-size:24px;">👤</div>`}
+                            <div>
+                                <div class="entry-user">${esc(x.name)}</div>
+                                <div class="entry-meta">📞 ${esc(x.phone)} &bull; 🕒 ${formatDate(x.created_at)}</div>
+                                ${x.selfie ? '<span class="verified-badge">✓ Selfie Verified</span>' : ''}
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn" style="background:#25D366; color:white; padding:6px 12px; font-size:12px; border-radius:8px; border:none;" onclick="backupWhatsApp('${x.id}')">WhatsApp 💬</button>
+                            <button class="btn" style="background:#4285F4; color:white; padding:6px 12px; font-size:12px; border-radius:8px; border:none;" onclick="backupDrive('${x.id}')">Drive ☁️</button>
+                            <button class="btn btn-danger" onclick="deleteEntry('${x.id}')">Delete 🗑️</button>
+                        </div>
+                    </div>
+
+                    <div class="section-heading">Paragraph About You</div>
+                    <div class="paragraph-box">${esc(x.paragraph)}</div>
+
+                    <div class="section-heading">🔐 Secret Message</div>
+                    <div class="secret-box">
+                        <span class="secret-badge">${x.anonymous ? '👤 Marked Anonymous by Friend' : '✍️ Signed Secret'}</span>
+                        <span style="font-size:12px; color:#7048d8; font-weight:700; margin-left:8px;">(Real Author: ${esc(x.name)} &bull; 📞 ${esc(x.phone)})</span>
+                        <div style="font-size:15px; color:#2d1a34; margin-top:8px;">${esc(x.secret)}</div>
+                    </div>
+
+                    <div class="section-heading" style="margin-top:16px;">Questions & Answers</div>
+                    <div class="q-item">
+                        <b>1. Favourite memory with you</b>
+                        ${esc(x.q1)}
+                    </div>
+                    <div class="q-item">
+                        <b>2. Described you in 3 words</b>
+                        ${esc(x.q2)}
+                    </div>
+                    <div class="q-item">
+                        <b>3. What to remember about them after college</b>
+                        ${esc(x.q3)}
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        function openSelfieModal(id) {
+            const entry = allEntries.find(e => e.id == id);
+            if (!entry || !entry.selfie) return;
+            document.getElementById('modalImg').src = entry.selfie;
+            document.getElementById('modalTitle').textContent = `Selfie Verification: ${entry.name}`;
+            document.getElementById('modalSub').textContent = `Phone: ${entry.phone} • Submitted: ${formatDate(entry.created_at)}`;
+            document.getElementById('selfieModal').style.display = 'flex';
+        }
+
+        function closeSelfieModal() {
+            document.getElementById('selfieModal').style.display = 'none';
+        }
+
+        async function deleteEntry(id) {
+            if (!confirm('Are you sure you want to delete this autograph entry?')) return;
+            const token = sessionStorage.getItem(AUTH_KEY);
+            try {
+                const res = await fetch(`/api/entries/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'X-Admin-Password': token }
+                });
+                if (res.ok) {
+                    allEntries = allEntries.filter(e => e.id !== id);
+                    renderEntries(allEntries);
+                } else {
+                    alert('Failed to delete entry.');
+                }
+            } catch (e) {
+                alert('Error deleting entry: ' + e.message);
+            }
+        }
+
+        function backupWhatsApp(id) {
+            const data = allEntries.find(e => String(e.id) === String(id));
+            if (!data) return;
+            const text = `*New Slambook Entry!* 🌟\n\n*Name:* ${data.name}\n*Phone:* ${data.phone}\n*Paragraph:* ${data.paragraph}\n*Secret:* ${data.anonymous ? 'Anonymous' : data.name} said: ${data.secret}\n*Fav Memory:* ${data.q1}\n*3 Words:* ${data.q2}\n*Remember:* ${data.q3}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function backupDrive(id) {
+            const data = allEntries.find(e => String(e.id) === String(id));
+            if (!data) return;
+            const text = `New Slambook Entry!\n\nName: ${data.name}\nPhone: ${data.phone}\nParagraph: ${data.paragraph}\nSecret: ${data.anonymous ? 'Anonymous' : data.name} said: ${data.secret}\nFav Memory: ${data.q1}\n3 Words: ${data.q2}\nRemember: ${data.q3}`;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `slambook_entry_${data.name.replace(/\s+/g, '_')}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            try {
+                const d = new Date(dateStr.replace(' ', 'T') + 'Z');
+                return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        function esc(s) {
+            if (!s) return '';
+            return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
+        }
+    </script>
+</body>
+</html>

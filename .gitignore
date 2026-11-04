@@ -1,0 +1,5 @@
+node_modules/
+.env
+.env.*.local
+*.log
+SlamBook_All_Entries.html

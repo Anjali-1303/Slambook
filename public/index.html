@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Digital Slam Book Of Anjali V</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            background: #f8f5ff;
+            color: #201b2d;
+            line-height: 1.5;
+        }
+
+        .wrap {
+            max-width: 850px;
+            margin: auto;
+            padding: 32px 18px;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 38px 18px;
+        }
+
+        .eyebrow {
+            letter-spacing: 3px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #7955d9;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            font-family: Georgia, serif;
+            font-size: clamp(42px, 8vw, 76px);
+            margin: 10px 0;
+            background: linear-gradient(90deg, #7048d8, #d35b99);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .hero p {
+            font-size: 17px;
+            color: #6d6679;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e8e1f3;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 14px 45px rgba(94, 58, 160, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-family: Georgia, serif;
+            font-size: 26px;
+            margin: 0 0 8px;
+        }
+
+        .hint {
+            color: #777080;
+            font-size: 14px;
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            font-weight: 700;
+            margin: 18px 0 8px;
+            font-size: 14px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 14px 15px;
+            border: 1px solid #dcd4e8;
+            border-radius: 14px;
+            font: inherit;
+            outline: none;
+            background: #fcfbfe;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: #8a69dc;
+            box-shadow: 0 0 0 4px rgba(138, 105, 220, 0.12);
+        }
+
+        textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .secret {
+            background: #faf5ff;
+            border: 1px dashed #a98be8;
+        }
+
+        .check {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #665e72;
+            cursor: pointer;
+        }
+
+        .check input {
+            width: auto;
+            cursor: pointer;
+        }
+
+        /* Selfie Verification Component */
+        .selfie-box {
+            background: #fdfaff;
+            border: 2px dashed #c0a8f0;
+            border-radius: 18px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .selfie-title {
+            font-weight: 800;
+            font-size: 15px;
+            color: #5c38b8;
+            margin-bottom: 4px;
+        }
+
+        .selfie-desc {
+            font-size: 13px;
+            color: #766d85;
+            margin-bottom: 16px;
+        }
+
+        .selfie-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-sec {
+            background: #f0eaff;
+            color: #6843c5;
+            border: 1px solid #d4c4f7;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-sec:hover {
+            background: #e4d8ff;
+        }
+
+        .camera-view {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .camera-view video {
+            width: 100%;
+            max-width: 320px;
+            border-radius: 16px;
+            border: 2px solid #7048d8;
+            background: #000;
+        }
+
+        .preview-container {
+            display: none;
+            margin-top: 14px;
+            align-items: center;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .preview-img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid #7048d8;
+            box-shadow: 0 8px 20px rgba(112, 72, 216, 0.2);
+        }
+
+        .verified-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #e6fffa;
+            color: #234e52;
+            border: 1px solid #b2f5ea;
+            padding: 4px 10px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .btn {
+            width: 100%;
+            border: 0;
+            border-radius: 15px;
+            padding: 16px;
+            font-weight: 800;
+            font-size: 16px;
+            color: white;
+            background: linear-gradient(90deg, #7048d8, #c34f92);
+            cursor: pointer;
+            margin-top: 24px;
+            box-shadow: 0 8px 25px rgba(112, 72, 216, 0.25);
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .success {
+            display: none;
+            text-align: center;
+            padding: 48px 24px;
+        }
+
+        .success h2 {
+            font-family: Georgia, serif;
+            font-size: 34px;
+            margin-top: 10px;
+        }
+
+        .admin-link {
+            text-align: center;
+            margin: 20px;
+        }
+
+        @media(max-width:650px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 21px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="wrap">
+        <section class="hero">
+            <div class="eyebrow">A DIGITAL AUTOGRAPH BOOK OF ANJALI V</div>
+            <h1>Digital Slam Book</h1>
+            <p>Years will pass. These words will stay.</p>
+        </section>
+
+        <section id="formCard" class="card">
+            <h2 class="section-title">Leave an Autograph</h2>
+            <p class="hint">Take a few minutes to leave a memory that can be read years from now.</p>
+            
+            <form id="form">
+                <div class="grid">
+                    <div>
+                        <label>Your Name</label>
+                        <input name="name" required placeholder="Enter your full name">
+                    </div>
+                    <div>
+                        <label>Phone Number</label>
+                        <input name="phone" required type="tel" placeholder="Enter your phone number">
+                    </div>
+                </div>
+
+                <!-- SELFIE VERIFICATION BLOCK -->
+                <div class="selfie-box">
+                    <div class="selfie-title">📸 Selfie Identity Verification (Required)</div>
+                    <div class="selfie-desc">To verify your identity and ensure no one impersonates your name, please attach a quick selfie photo!</div>
+                    
+                    <div class="selfie-actions" id="selfieBtns">
+                        <button type="button" class="btn-sec" id="openCamBtn">📷 Snap Live Selfie</button>
+                        <button type="button" class="btn-sec" onclick="document.getElementById('fileInput').click()">📁 Choose Photo</button>
+                        <input type="file" id="fileInput" accept="image/*" capture="user" style="display:none;">
+                    </div>
+
+                    <!-- Live Camera Feed -->
+                    <div class="camera-view" id="cameraView">
+                        <video id="videoFeed" autoplay playsinline muted></video>
+                        <div style="margin-top:10px;">
+                            <button type="button" class="btn-sec" id="captureBtn" style="background:#7048d8; color:white;">📸 Take Photo</button>
+                            <button type="button" class="btn-sec" id="closeCamBtn">Cancel</button>
+                        </div>
+                    </div>
+
+                    <!-- Selfie Preview -->
+                    <div class="preview-container" id="previewBox">
+                        <img id="selfieImg" class="preview-img" alt="Selfie Preview">
+                        <div class="verified-tag">✓ Selfie Verified</div>
+                        <button type="button" class="btn-sec" id="retakeBtn" style="font-size:12px; padding:5px 10px;">Retake / Change Photo</button>
+                    </div>
+
+                    <input type="hidden" name="selfie" id="selfieData" required>
+                </div>
+
+                <label>Write a Paragraph About Me</label>
+                <textarea name="paragraph" required placeholder="Write about me, our friendship, your memories, your impression of me..."></textarea>
+
+                <label>🔐 One Secret Message</label>
+                <textarea name="secret" required class="secret" placeholder="Something you've always wanted to tell me but never said..."></textarea>
+                
+                <label class="check">
+                    <input type="checkbox" name="anonymous"> Keep my name anonymous for the secret message
+                </label>
+
+                <label>1. What is your favourite memory with me?</label>
+                <textarea name="q1" required placeholder="Share your favorite memory..."></textarea>
+
+                <label>2. Describe me in three words.</label>
+                <textarea name="q2" required placeholder="Three words that describe me..."></textarea>
+
+                <label>3. What is one thing you want me to remember about you after college?</label>
+                <textarea name="q3" required placeholder="What should I remember about you..."></textarea>
+
+                <button type="submit" class="btn">Submit Autograph ✨</button>
+            </form>
+        </section>
+
+        <section id="success" class="card success">
+            <div style="font-size:50px">💌</div>
+            <h2>Autograph Saved!</h2>
+            <p>Your message & verified memory have become part of the memory book.</p>
+            <button class="btn" onclick="location.reload()">Write Another</button>
+        </section>
+
+        <footer class="admin-link">
+            <a href="admin.html" style="color: #a49cb3; font-size: 13px; text-decoration: none;">🔒 Owner Access</a>
+        </footer>
+    </main>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const openCamBtn = document.getElementById('openCamBtn');
+        const closeCamBtn = document.getElementById('closeCamBtn');
+        const captureBtn = document.getElementById('captureBtn');
+        const cameraView = document.getElementById('cameraView');
+        const videoFeed = document.getElementById('videoFeed');
+        const selfieBtns = document.getElementById('selfieBtns');
+        const previewBox = document.getElementById('previewBox');
+        const selfieImg = document.getElementById('selfieImg');
+        const selfieData = document.getElementById('selfieData');
+        const retakeBtn = document.getElementById('retakeBtn');
+        let mediaStream = null;
+
+        // Process File Upload
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    compressAndSetImage(event.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Open Live Camera
+        openCamBtn.addEventListener('click', async () => {
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 640 } },
+                    audio: false
+                });
+                videoFeed.srcObject = mediaStream;
+                selfieBtns.style.display = 'none';
+                cameraView.style.display = 'block';
+            } catch (err) {
+                alert('Could not access camera. Please use the "Choose Photo" option instead.');
+            }
+        });
+
+        // Close Camera
+        closeCamBtn.addEventListener('click', stopCamera);
+
+        function stopCamera() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+            cameraView.style.display = 'none';
+            selfieBtns.style.display = 'flex';
+        }
+
+        // Capture Camera Frame
+        captureBtn.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = videoFeed.videoWidth || 400;
+            canvas.height = videoFeed.videoHeight || 400;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(videoFeed, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            stopCamera();
+            compressAndSetImage(dataUrl);
+        });
+
+        // Compress image to max 500x500 for fast upload
+        function compressAndSetImage(src) {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const maxDim = 500;
+
+                if (width > height) {
+                    if (width > maxDim) {
+                        height = Math.round((height * maxDim) / width);
+                        width = maxDim;
+                    }
+                } else {
+                    if (height > maxDim) {
+                        width = Math.round((width * maxDim) / height);
+                        height = maxDim;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const compressedData = canvas.toDataURL('image/jpeg', 0.8);
+                selfieData.value = compressedData;
+                selfieImg.src = compressedData;
+                selfieBtns.style.display = 'none';
+                previewBox.style.display = 'flex';
+            };
+            img.src = src;
+        }
+
+        // Retake Button
+        retakeBtn.addEventListener('click', () => {
+            selfieData.value = '';
+            previewBox.style.display = 'none';
+            selfieBtns.style.display = 'flex';
+            fileInput.value = '';
+        });
+
+        // Auto-save drafts
+        const formElements = document.querySelectorAll('#form input:not([type="file"]):not([type="hidden"]), #form textarea');
+        formElements.forEach(el => {
+            if (!el.name) return;
+            const saved = localStorage.getItem('slambook_' + el.name);
+            if (saved !== null) {
+                if (el.type === 'checkbox') el.checked = saved === 'true';
+                else el.value = saved;
+            }
+            el.addEventListener('input', () => {
+                if (el.type === 'checkbox') localStorage.setItem('slambook_' + el.name, el.checked);
+                else localStorage.setItem('slambook_' + el.name, el.value);
+            });
+        });
+
+        // Form Submit
+        document.querySelector('#form').addEventListener('submit', async e => {
+            e.preventDefault();
+            if (!selfieData.value) {
+                alert('Please take or upload a selfie for identity verification!');
+                return;
+            }
+
+            const f = new FormData(e.target);
+            const data = Object.fromEntries(f.entries());
+            data.anonymous = !!data.anonymous;
+
+            try {
+                const r = await fetch('/api/entries', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (r.ok) {
+                    // Clear auto-save
+                    formElements.forEach(el => localStorage.removeItem('slambook_' + el.name));
+
+                    document.querySelector('#formCard').style.display = 'none';
+                    document.querySelector('#success').style.display = 'block';
+                } else {
+                    const err = await r.json();
+                    alert(err.error || 'Submission failed');
+                }
+            } catch (err) {
+                alert('Network error. Please try again.');
+            }
+        });
+    </script>
+</body>
+
+</html>
