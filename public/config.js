@@ -22,7 +22,7 @@
  *   window.SLAMBOOK_API_URL = window.SLAMBOOK_API_URL || 'https://your-app.onrender.com';
  */
 
-window.SLAMBOOK_API_URL = window.SLAMBOOK_API_URL || '';
+window.SLAMBOOK_API_URL = window.SLAMBOOK_API_URL || 'https://slambook-h3mg.onrender.com';
 
 // ─── Keep-awake / cold-start warm-up ─────────────────────────────────────────
 // Render Free instances sleep after ~15 minutes of inactivity.  Hitting
