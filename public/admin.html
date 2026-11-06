@@ -420,12 +420,36 @@
         </div>
     </div>
 
+    <!-- Load centralised API URL config + keep-awake logic before page scripts -->
+    <script src="/config.js"></script>
     <script>
+        // Token is the HMAC-signed value returned by /api/login – never the raw password.
         const AUTH_KEY = 'slambook_admin_token';
         let allEntries = [];
 
+        // Helper: get the stored token for authorised requests
+        function getToken() {
+            return sessionStorage.getItem(AUTH_KEY);
+        }
+
+        // Helper: build full API URL using the centralised base (set by config.js)
+        function apiUrl(path) {
+            return (window.SLAMBOOK_API_URL || '') + path;
+        }
+
+        function showLoginView(errorMsg) {
+            sessionStorage.removeItem(AUTH_KEY);
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('authView').style.display = 'block';
+            if (errorMsg) {
+                const errBox = document.getElementById('loginError');
+                errBox.textContent = errorMsg;
+                errBox.style.display = 'block';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            const savedToken = sessionStorage.getItem(AUTH_KEY);
+            const savedToken = getToken();
             if (savedToken) {
                 fetchEntries(savedToken);
             }
@@ -434,38 +458,63 @@
                 e.preventDefault();
                 const pass = document.getElementById('adminPass').value;
                 const errBox = document.getElementById('loginError');
+                const submitBtn = e.target.querySelector('button[type="submit"]');
                 errBox.style.display = 'none';
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Verifying…';
+
+                // Show a gentle notice if the backend may still be waking up
+                const backendReady = window.SLAMBOOK && window.SLAMBOOK.isBackendReady
+                    ? window.SLAMBOOK.isBackendReady() : true;
+                if (!backendReady) {
+                    errBox.textContent = '⏳ Server is starting up – this may take a moment…';
+                    errBox.style.color = '#7048d8';
+                    errBox.style.background = '#faf5ff';
+                    errBox.style.display = 'block';
+                }
 
                 try {
-                    const res = await fetch('/api/login', {
+                    const res = await fetch(apiUrl('/api/login'), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ password: pass })
                     });
                     const data = await res.json();
-                    if (res.ok && data.ok) {
-                        sessionStorage.setItem(AUTH_KEY, pass);
-                        fetchEntries(pass);
+                    if (res.ok && data.ok && data.token) {
+                        // Store the signed token, never the raw password
+                        sessionStorage.setItem(AUTH_KEY, data.token);
+                        errBox.style.display = 'none';
+                        fetchEntries(data.token);
                     } else {
-                        errBox.textContent = data.error || 'Incorrect password';
+                        errBox.textContent = data.error || 'Incorrect password.';
+                        errBox.style.color = '';
+                        errBox.style.background = '';
                         errBox.style.display = 'block';
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Unlock Messages ✨';
                     }
                 } catch (err) {
-                    errBox.textContent = 'Network error. Please try again.';
+                    if (!backendReady) {
+                        errBox.textContent = 'Server is still waking up. Please wait a few seconds and try again.';
+                    } else {
+                        errBox.textContent = 'Network error. Please check your connection and try again.';
+                    }
+                    errBox.style.color = '';
+                    errBox.style.background = '';
                     errBox.style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Unlock Messages ✨';
                 }
             });
 
             document.getElementById('logoutBtn').addEventListener('click', () => {
-                sessionStorage.removeItem(AUTH_KEY);
-                document.getElementById('dashboardView').style.display = 'none';
-                document.getElementById('authView').style.display = 'block';
+                showLoginView();
                 document.getElementById('adminPass').value = '';
             });
 
             document.getElementById('searchInput').addEventListener('input', (e) => {
                 const query = e.target.value.toLowerCase().trim();
-                const filtered = allEntries.filter(item => 
+                const filtered = allEntries.filter(item =>
                     item.name.toLowerCase().includes(query) ||
                     item.phone.toLowerCase().includes(query) ||
                     item.paragraph.toLowerCase().includes(query) ||
@@ -477,17 +526,17 @@
 
         async function fetchEntries(token) {
             try {
-                const res = await fetch('/api/entries', {
+                const res = await fetch(apiUrl('/api/entries'), {
                     headers: { 'X-Admin-Password': token }
                 });
 
                 if (res.status === 401) {
-                    sessionStorage.removeItem(AUTH_KEY);
-                    document.getElementById('dashboardView').style.display = 'none';
-                    document.getElementById('authView').style.display = 'block';
-                    document.getElementById('loginError').textContent = 'Session expired or invalid password.';
-                    document.getElementById('loginError').style.display = 'block';
+                    showLoginView('Session expired. Please log in again.');
                     return;
+                }
+
+                if (!res.ok) {
+                    throw new Error(`Server returned ${res.status}`);
                 }
 
                 allEntries = await res.json();
@@ -575,17 +624,22 @@
 
         async function deleteEntry(id) {
             if (!confirm('Are you sure you want to delete this autograph entry?')) return;
-            const token = sessionStorage.getItem(AUTH_KEY);
+            const token = getToken();
             try {
-                const res = await fetch(`/api/entries/${id}`, {
+                const res = await fetch(apiUrl(`/api/entries/${id}`), {
                     method: 'DELETE',
                     headers: { 'X-Admin-Password': token }
                 });
+                if (res.status === 401) {
+                    showLoginView('Session expired. Please log in again.');
+                    return;
+                }
                 if (res.ok) {
-                    allEntries = allEntries.filter(e => e.id !== id);
+                    allEntries = allEntries.filter(e => String(e.id) !== String(id));
                     renderEntries(allEntries);
                 } else {
-                    alert('Failed to delete entry.');
+                    const data = await res.json().catch(() => ({}));
+                    alert(data.error || 'Failed to delete entry.');
                 }
             } catch (e) {
                 alert('Error deleting entry: ' + e.message);

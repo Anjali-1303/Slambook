@@ -355,8 +355,15 @@
         <footer class="admin-link">
             <a href="admin.html" style="color: #a49cb3; font-size: 13px; text-decoration: none;">🔒 Owner Access</a>
         </footer>
+
+        <!-- Backend wake-up notice (hidden until needed) -->
+        <div id="wakingNotice" style="display:none; text-align:center; margin:12px 0; padding:12px 18px; background:#faf5ff; border:1px solid #c0a8f0; border-radius:14px; font-size:14px; color:#5c38b8;">
+            ⏳ The server is starting up, please wait a moment…
+        </div>
     </main>
 
+    <!-- Load centralised API URL config + keep-awake logic before page scripts -->
+    <script src="/config.js"></script>
     <script>
         const fileInput = document.getElementById('fileInput');
         const openCamBtn = document.getElementById('openCamBtn');
@@ -492,25 +499,49 @@
             const data = Object.fromEntries(f.entries());
             data.anonymous = !!data.anonymous;
 
+            // If the backend keep-awake check hasn't confirmed readiness yet,
+            // show a gentle notice but still attempt the request – it may succeed.
+            const wakingNotice = document.getElementById('wakingNotice');
+            const backendReady = window.SLAMBOOK && window.SLAMBOOK.isBackendReady
+                ? window.SLAMBOOK.isBackendReady()
+                : true;
+            if (!backendReady) {
+                wakingNotice.style.display = 'block';
+            }
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting…';
+
             try {
-                const r = await fetch('/api/entries', {
+                const r = await fetch(window.SLAMBOOK_API_URL + '/api/entries', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
 
+                wakingNotice.style.display = 'none';
+
                 if (r.ok) {
                     // Clear auto-save
                     formElements.forEach(el => localStorage.removeItem('slambook_' + el.name));
-
                     document.querySelector('#formCard').style.display = 'none';
                     document.querySelector('#success').style.display = 'block';
                 } else {
-                    const err = await r.json();
-                    alert(err.error || 'Submission failed');
+                    const errData = await r.json().catch(() => ({}));
+                    alert(errData.error || 'Submission failed. Please try again.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit Autograph ✨';
                 }
             } catch (err) {
-                alert('Network error. Please try again.');
+                wakingNotice.style.display = 'none';
+                if (!backendReady) {
+                    alert('The server is still starting up. Please wait a few seconds and try again.');
+                } else {
+                    alert('Network error. Please check your connection and try again.');
+                }
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Autograph ✨';
             }
         });
     </script>
